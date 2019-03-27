@@ -1,4 +1,4 @@
-const URL = "ws://195.88.26.75:9005";
+const URL = "ws://192.168.0.6:9005/";
 
 class Websocket {
     constructor(sSelector){
@@ -10,7 +10,12 @@ class Websocket {
     }
 
     socketMessageListener = (event) => {
-        this.socket.send('ping');
+        if (event){
+            console.log('Response server', event.data);
+            return event.data;
+        } else {
+            console.log('Response server', event);
+        }
     };
 
     socketOpenListener = (event) => {
@@ -22,7 +27,6 @@ class Websocket {
         clearInterval(this.timeoutFlag);
         this.socket.close();
         console.log("Websocket is closed");
-        this.createNewSocket();
     };
 
     socketErrorListener = (error)=> {
@@ -34,7 +38,11 @@ class Websocket {
     };
 
     serverPing() {
-        this.timeoutFlag = setInterval(this.socketMessageListener.bind(this),
+        this.timeoutFlag = setInterval(() => {
+            if (this.socket.readyState !== 1){
+                console.log("Server disconnect");
+                this.createNewSocket();
+            }},
             1000);
         console.log('PING');
     }
